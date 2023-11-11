@@ -8,9 +8,6 @@ RUN adduser -D dev
 
 USER dev
 
-COPY ./radleylewis-nvim/* /home/dev/.config/nvim/
-
-COPY ./radleylewis-tmux /home/dev/.config/tmux/
 RUN mkdir -p /home/dev/.local/share/nvim
 RUN mkdir -p /home/dev/.config/tmux
 
@@ -29,10 +26,8 @@ RUN if [ "$RUN_ENV" = "DEV" ]; then \
              procps\
              ripgrep\
              alpine-sdk\
-             gzip\
              tree-sitter tree-sitter-cli\
              fd\ 
-             unzip\
              wl-clipboard\
              --update;\
     fi
