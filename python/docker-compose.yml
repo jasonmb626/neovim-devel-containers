@@ -21,7 +21,7 @@ services:
       TERM: xterm-256color
       WAYLAND_DISPLAY: $WAYLAND_DISPLAY
       XDG_DATA_DIRS: /tmp/XDG_DATA_DIRS
-      ZDOTDIR=/home/dev/.config/zsh
+      ZDOTDIR: /home/dev/.config/zsh
     security_opt:
       - label:type:container_runtime_t
     ports:
