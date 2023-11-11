@@ -17,6 +17,10 @@ USER root
 COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install -r /tmp/requirements.txt && rm /tmp/requirements.txt
 
+COPY requirements-dev.txt /tmp/requirements-dev.txt
+RUN if [ "$RUN_ENV" = "DEV" ]; then \
+        pip3 install -r /tmp/requirements-dev.txt; \
+    fi
 RUN if [ "$RUN_ENV" = "DEV" ]; then \
     apk add stylua\
              npm\
@@ -30,6 +34,7 @@ RUN if [ "$RUN_ENV" = "DEV" ]; then \
              fd\ 
              wl-clipboard\
              --update;\
+    rm /tmp/requirements-dev.txt;\
     fi
 
 USER dev
