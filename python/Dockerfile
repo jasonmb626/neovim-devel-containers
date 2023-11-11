@@ -4,12 +4,11 @@ ARG RUN_ENV
 
 RUN apk add git --update
 
-RUN adduser -D dev
+RUN adduser -D dev 
 
 USER dev
 
-RUN mkdir -p /home/dev/.local/share/nvim
-RUN mkdir -p /home/dev/.config/tmux
+RUN mkdir -p /home/dev/.local/share/nvim; mkdir -p /home/dev/.config/tmux;
 
 RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
@@ -33,7 +32,9 @@ RUN if [ "$RUN_ENV" = "DEV" ]; then \
              tree-sitter tree-sitter-cli\
              fd\ 
              wl-clipboard\
+             sudo\
              --update;\
+    echo 'dev ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/dev;\
     rm /tmp/requirements-dev.txt;\
     fi
 
