@@ -6,21 +6,12 @@ RUN apk add git --update
 
 RUN adduser -D dev 
 
-USER dev
-
-RUN mkdir -p /home/dev/.local/share/nvim; mkdir -p /home/dev/.config/tmux;
-
-RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-
-USER root
 COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install -r /tmp/requirements.txt && rm /tmp/requirements.txt
 
 COPY requirements-dev.txt /tmp/requirements-dev.txt
 RUN if [ "$RUN_ENV" = "DEV" ]; then \
-        pip3 install -r /tmp/requirements-dev.txt; \
-    fi
-RUN if [ "$RUN_ENV" = "DEV" ]; then \
+    pip3 install -r /tmp/requirements-dev.txt; \
     apk add stylua\
              npm\
              lua-dev luarocks\
@@ -39,7 +30,9 @@ RUN if [ "$RUN_ENV" = "DEV" ]; then \
     fi
 
 USER dev
-
-EXPOSE 3000
+RUN if [ "$RUN_ENV" = "DEV" ]; then \
+    mkdir -p /home/dev/.local/share/nvim; mkdir -p /home/dev/.config/tmux;\
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm;\
+fi
 
 WORKDIR /app
