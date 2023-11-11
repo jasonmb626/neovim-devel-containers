@@ -6,7 +6,7 @@ services:
       context: .
       args:
         RUN_ENV: DEV
-    container_name: neovim-python
+    container_name: neovim-node
     restart: always
     volumes:
       - .:/app:z
