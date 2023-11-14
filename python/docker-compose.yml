@@ -6,7 +6,7 @@ services:
       context: .
       args:
         RUN_ENV: DEV
-    container_name: neodev
+    container_name: nvim-python
     restart: always
     volumes:
       - .:/app:z
