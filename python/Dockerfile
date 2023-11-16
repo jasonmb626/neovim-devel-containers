@@ -1,27 +1,30 @@
 FROM python:3.9.18-alpine
 
 ARG RUN_ENV
-ARG SSH_KEYS
+
+ENV ENV=/home/app/.ashrc
 
 RUN apk add git --update
 
-RUN adduser -D dev 
+RUN adduser -D app
+
+RUN mkdir -p /home/app/.ssh && chown app:app /home/app/.ssh
+
+USER app
+RUN python -m venv /home/app/.venv
 
 COPY requirements.txt /tmp/requirements.txt
-RUN pip3 install -r /tmp/requirements.txt && rm /tmp/requirements.txt
+RUN pip3 install -r /tmp/requirements.txt
 
-RUN mkdir -p /home/dev/.ssh
-COPY ssh/id_rsa* /home/dev/.ssh
-RUN touch /home/dev/.ssh/config; chown -R dev:dev /home/dev/.ssh; chmod 400 /home/dev/.ssh/config;
-RUN touch /home/dev/.gitconfig; chown -R dev:dev /home/dev/.gitconfig
+USER root
+RUN touch /home/app/.ssh/config; chown -R app:app /home/app/.ssh; chmod 400 /home/app/.ssh/config; touch /home/app/.gitconfig; chown -R app:app /home/app/.gitconfig; rm /tmp/requirements.txt;
 
 COPY requirements-dev.txt /tmp/requirements-dev.txt
 RUN if [ "$RUN_ENV" == "DEV" ]; then \
-    pip3 install -r /tmp/requirements-dev.txt; \
     apk add stylua\
              npm\
              openssh\
-             lua-dev luarocks\
+             lua-app luarocks\
              lazygit\
              tmux neovim neovim-doc py3-pynvim\
              procps\
@@ -32,18 +35,20 @@ RUN if [ "$RUN_ENV" == "DEV" ]; then \
              wl-clipboard\
              sudo\
              --update;\
-    echo -e "Host *\n    StrictHostKeyChecking no" > /home/dev/.ssh/config;\
-    echo 'dev ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/dev;\
-    rm /tmp/requirements-dev.txt;\
+    echo -e "Host *\n    StrictHostKeyChecking no" > /home/app/.ssh/config;\
+    echo 'app ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/app;\
 fi
 
-USER dev
+USER app
 RUN if [ "$RUN_ENV" == "DEV" ]; then \
-    mkdir -p /home/dev/.local/share/nvim; mkdir -p /home/dev/.config/tmux;\
+    pip3 install -r /tmp/requirements-dev.txt; \
+    rm /tmp/requirements-dev.txt;\
+    mkdir -p /home/app/.local/share/nvim; mkdir -p /home/app/.config/tmux;\
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm;\
-    echo -e "[user]\n	email = jason@jasonbrunelle.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/dev/.gitconfig;\
+    echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/app/.gitconfig;\
 else\
-    rm -fr /home/dev/.ssh;\
+    rm -fr /home/app/.ssh;\
 fi
 
+RUN echo "source /home/app/.venv/bin/activate" >> /home/app/.ashrc
 WORKDIR /app
