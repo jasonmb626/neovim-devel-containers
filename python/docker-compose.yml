@@ -4,15 +4,15 @@ services:
   dev:
     build:
       context: .
-      #target: prod
-    container_name: nvim-python
+      dockerfile: dockerfiles/dev.dockerfile
+    container_name: neovim
     restart: always
     volumes:
       - ./app:/app:z
       - ./local/share/nvim:/home/dev/.local/share/nvim:z
-      - ~/.config/nvim:/home/app/.config/nvim:z
-      - ~/.config/tmux:/home/app/.config/tmux:z
-      - ~/.ssh/id_rsa:/home/app/.ssh/id_rsa:z
+      - ~/.config/nvim:/home/dev/.config/nvim:z
+      - ~/.config/tmux:/home/dev/.config/tmux:z
+      - ~/.ssh/id_rsa:/home/dev/.ssh/id_rsa:z
       - $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:z
     stdin_open: true
     tty: true
@@ -22,6 +22,20 @@ services:
       TERM: xterm-256color
       WAYLAND_DISPLAY: $WAYLAND_DISPLAY
       XDG_DATA_DIRS: /tmp/XDG_DATA_DIRS
-      ZDOTDIR: /home/app/.config/zsh
+      ZDOTDIR: /home/dev/.config/zsh
         #    security_opt:  #This this if copying to system clipboard fails.  Needed with moby engine but not Docker proper.
         #      - label:type:container_runtime_t
+  app:
+    build:
+      context: .
+      dockerfile: dockerfiles/node.dockerfile
+      args: 
+        ssh_pub_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC6m7vieOCqcNmYLXfrTigPLfssuOG0M0fPdADKfdU6UmlyX0em1sRYdGfjNRYKuISx2B63+jG2ebf9h52Qbg8pe/if/zNRQxPkZZ7CGfGJOLFWiheoI8k4J8Wn9s8RdT3l6T67Efn2ClPn2HySFgnS7MSbVAT6wdREV4P3S1HSzrOhlzd48OtWiyRF90P7sZc2vDHE7NOyapD9Qz9lmQadZjbPs39Cu23uGPV54N7sCQhUdMMo2sTK8I38NhHXAOiMllg2XZWIUix5MBmXR6mgGYudu4iBQ053VN4Vig+W265uyMaj2NcThZTtgBPVsBahItMcOSwo9Cd0xJIYBcGTiP9XtQT0HZv6vGAaDQm6l30FQe/OqyBSoaiiO2E2hFG4uuvG4g6ObTJ9aMdCti1Z1CPbRFet7DF2D/mtKq4yxlv+tl1JOiI6ddBgQL0HM88q2EQQgpB0YF8zkaybsXhzYhb0UUh+1dXNAjlS7v/BHvFQwuPRsmFmP54rztC8bZ0j37Vgi7iTfNTlo9V765SZieZ0l1I6kuDtE3W/3scqF8LXDQ3LXecXkwKEfVXlPbsU6ewHGfSRuHYiJNW9Eew3p2OeQxu3UjWv8QGo8Ny63Bx7g0OPbKw/U50CGXLm4g1CaFY1zqg293oynyCBEJcLLnzG6C84mBFqqv/5xxe6MQ== jason@jasonbrunelle.com
+    container_name: node
+    restart: always
+    volumes:
+      - ./app:/app:z
+    stdin_open: true
+    tty: true
+    ports:
+      - 22:22
