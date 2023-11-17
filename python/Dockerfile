@@ -1,15 +1,15 @@
 ###############################     Base    #################################################
 FROM python:3.9.18-alpine as prod
 
-ENV ENV=/home/app/.ashrc
+ENV ENV=/home/app/.bashrc
 
 WORKDIR /app
 COPY app/. .
 
-RUN adduser -D app && echo "source /home/app/.venv/bin/activate" >> /home/app/.ashrc
+RUN adduser -D app -s /bin/bash && echo "source /home/app/.venv/bin/activate" >> /home/app/.bashrc && chown app:app /home/app/.bashrc
 
 USER app
-RUN python -m venv /home/app/.venv
+RUN python -m venv /home/app/.venv && source /home/app/.bashrc
 COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install -r /tmp/requirements.txt
 
@@ -38,7 +38,8 @@ RUN apk add git\
          wl-clipboard\
          sudo\
          --update && \
-    echo 'app ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/app
+    echo 'app ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/app && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 
 USER app
 RUN echo -e "Host *\n    StrictHostKeyChecking no" > /home/app/.ssh/config && chmod 400 /home/app/.ssh/config &&\
