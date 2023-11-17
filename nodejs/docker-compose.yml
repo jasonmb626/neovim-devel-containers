@@ -6,12 +6,12 @@ services:
       context: .
       args:
         RUN_ENV: DEV
-    container_name: neovim-node
+    container_name: nvim-node
     restart: always
     volumes:
       - .:/app:z
-      - /home/dev/.local/share/nvim:/home/dev/.local/share/nvim:z
-      - /home/dev/.config:/home/dev/.config/:z
+      - ./myvim/local/share/nvim:/home/dev/.local/share/nvim:z
+      - ~/.config/nvim:/home/dev/.config/nvim:z
       - $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:z
     stdin_open: true
     tty: true
@@ -22,7 +22,5 @@ services:
       WAYLAND_DISPLAY: $WAYLAND_DISPLAY
       XDG_DATA_DIRS: /tmp/XDG_DATA_DIRS
       ZDOTDIR: /home/dev/.config/zsh
-    security_opt:
-      - label:type:container_runtime_t
-    ports:
-      - 3000:3000
+        #    security_opt:  #This this if copying to system clipboard fails.  Needed with moby engine but not Docker proper.
+        #      - label:type:container_runtime_t
