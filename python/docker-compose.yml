@@ -4,12 +4,11 @@ services:
   dev:
     build:
       context: .
-      dockerfile: dockerfiles/dev.dockerfile
     container_name: neovim
     restart: always
     volumes:
       - ./app:/app:z
-      - ./local/share/nvim:/home/dev/.local/share/nvim:z
+      - ./local:/home/dev/.local/:z
       - ~/.config/nvim:/home/dev/.config/nvim:z
       - ~/.config/tmux:/home/dev/.config/tmux:z
       - ~/.ssh/id_rsa:/home/dev/.ssh/id_rsa:z
