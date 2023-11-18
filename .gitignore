@@ -1,4 +1,5 @@
 node_modules
 package-lock.json
 python/app/package.json
-local/share/nvim
+local
+app
