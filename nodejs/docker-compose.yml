@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  dev:
+    build:
+      context: .
+      args:
+        RUN_ENV: DEV
+    container_name: nvim-node
+    restart: always
+    volumes:
+      - ./app:/app:z
+      - ./local:/home/node/.local:z
+      - ~/.config/nvim:/home/node/.config/nvim:z
+      - $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:z
+    stdin_open: true
+    tty: true
+    user: 1000:1000
+    environment:
+      XDG_RUNTIME_DIR: /tmp
+      TERM: xterm-256color
+      WAYLAND_DISPLAY: $WAYLAND_DISPLAY
+      XDG_DATA_DIRS: /tmp/XDG_DATA_DIRS
+      ZDOTDIR: /home/node/.config/zsh
+        #    security_opt:  #This this if copying to system clipboard fails.  Needed with moby engine but not Docker proper.
+        #      - label:type:container_runtime_t
