@@ -3,36 +3,21 @@ FROM python:3.9.18-alpine
 
 WORKDIR /app
 
-RUN adduser -D dev -s /bin/bash && \
-    touch /home/dev/.bashrc && \
-    chown dev:dev /home/dev/.bashrc
-
-RUN cat <<EOF >> /home/dev/.bashrc 
-source /home/dev/.venv/bin/activate
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-EOF
-
-RUN cat <<EOF > /home/dev/.bash_profile 
-# .bash_profile
-
-# Get the aliases and functions
-if [ -f ~/.bashrc ]; then
-    . ~/.bashrc
-fi
-
-# User specific environment and startup programs
-EOF
-
-USER dev
-RUN python -m venv /home/dev/.venv
-RUN pip3 install pynvim
-
-USER root
-
-RUN mkdir -p /home/dev/.ssh && chown dev:dev /home/dev/.ssh && touch /home/dev/.ssh/config && chown -R dev:dev /home/dev/.ssh && touch /home/dev/.gitconfig && chown -R dev:dev /home/dev/.gitconfig && mkdir -p /home/dev/.local/share/nvim && chown -R dev:dev /home/dev/.local/share/nvim && mkdir -p /home/dev/.config/tmux && chown -R dev:dev /home/dev/.config/tmux
-
-RUN apk add git\
+RUN <<EOC
+    adduser -D dev -s /bin/bash
+    touch /home/dev/{.bashrc,.bash_profile}
+    chown dev:dev /home/dev/{.bashrc,.bash_profile}
+    mkdir -p /home/dev/.ssh
+    chown dev:dev /home/dev/.ssh
+    touch /home/dev/.ssh/config
+    chown -R dev:dev /home/dev/.ssh
+    touch /home/dev/.gitconfig
+    chown -R dev:dev /home/dev/.gitconfig
+    mkdir -p /home/dev/.local/share/nvim
+    chown -R dev:dev /home/dev/.local/share/nvim
+    mkdir -p /home/dev/.config/tmux
+    chown -R dev:dev /home/dev/.config/tmux
+    apk add git\
          npm\
          openssh\
          lua-dev luarocks\
@@ -42,15 +27,42 @@ RUN apk add git\
          ripgrep\
          alpine-sdk\
          tree-sitter tree-sitter-cli\
-         fd\ 
+         fd\
          wl-clipboard\
          sudo\
-         --update && \
-    echo 'dev ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/dev && \
-    echo -e "Host *\n    StrictHostKeyChecking no" > /home/dev/.ssh/config && chown dev:dev /home/dev/.ssh/config && chmod 400 /home/dev/.ssh/config && \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+         --update
+    mkdir -p /etc/sudoers.d
+    echo 'dev ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/dev
+    echo -e "Host *\n    StrictHostKeyChecking no" > /home/dev/.ssh/config && chown dev:dev /home/dev/.ssh/config && chmod 400 /home/dev/.ssh/config
+EOC
 
 USER dev
-RUN git clone https://github.com/tmux-plugins/tpm /home/dev/.tmux/plugins/tpm && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/dev/.gitconfig
+RUN <<EOC
+    python -m venv /home/dev/.venv
+    pip3 install pynvim
+    cat <<EOF > /home/dev/.bash_profile 
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+    . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+EOF
+    cat <<EOF >/home/dev/.bashrc 
+source /home/dev/.venv/bin/activate
+EOF
+EOC
+
+SHELL ["/bin/bash", "-c"]
+RUN <<EOC
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+    echo "export NVM_NODEJS_ORG_MIRROR=https://unofficial-builds.nodejs.org/download/release" >> /home/dev/.bashrc
+    echo "nvm_get_arch() { nvm_echo \"x64-musl\"; }" >> /home/dev/.bashrc
+    source /home/dev/.nvm/nvm.sh
+    git clone https://github.com/tmux-plugins/tpm /home/dev/.tmux/plugins/tpm && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/dev/.gitconfig
+    nvm install --lts
+EOC
 
 CMD ["tmux"]
