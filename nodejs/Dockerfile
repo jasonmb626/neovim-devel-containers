@@ -1,5 +1,5 @@
 ###############################     Base    #################################################
-FROM node:21-alpine3.17 as prod
+FROM node:21-alpine3.18 as prod
 
 WORKDIR /app
 COPY app/. .
