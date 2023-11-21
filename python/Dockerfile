@@ -4,11 +4,12 @@ FROM fedora:39
 ARG node_ver=--lts
 ARG py_ver=""
 
-ENV CHARSET=${CHARSET:-UTF-8}
+ENV GDM_LANG=en_US.UTF-8
+ENV LANG=en_US.UTF-8
 
 WORKDIR /app
 
-RUN adduser dev \
+RUN useradd dev \
     && touch /home/dev/{.bashrc,.bash_profile} \
     && chown dev:dev /home/dev/{.bashrc,.bash_profile} \
     && mkdir -p /home/dev/.ssh \
@@ -21,11 +22,9 @@ RUN adduser dev \
     && chown -R dev:dev /home/dev/.local/share/nvim \
     && mkdir -p /home/dev/.config/tmux \
     && chown -R dev:dev /home/dev/.config/tmux \
-    && dnf install -y 'dnf-command(copr)' \
-    && dnf copr -y enable atim/lazygit \
     && dnf install -y\
+         fontconfig\
          git\
-         lazygit\
          openssh\
 	 luarocks\
          ripgrep\
