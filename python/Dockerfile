@@ -1,13 +1,8 @@
 ###############################     Base    #################################################
 FROM fedora:39
 
-ARG node_ver=--lts
-ARG py_ver=""
-
 ENV GDM_LANG=en_US.UTF-8
 ENV LANG=en_US.UTF-8
-
-WORKDIR /app
 
 RUN useradd dev \
     && touch /home/dev/{.bashrc,.bash_profile} \
@@ -61,20 +56,33 @@ fi
 # User specific environment and startup programs
 EOF
     cat <<EOF >/home/dev/.bashrc 
-source /home/dev/.venv/bin/activate
 export PYENV_ROOT="\$HOME/.pyenv"
 [[ -d \$PYENV_ROOT/bin ]] && export PATH="\$PYENV_ROOT/bin:\$PATH"
 eval "\$(pyenv init -)"
 eval "\$(pyenv virtualenv-init -)"
+source /home/dev/.venv/bin/activate
 EOF
 EOC
 
+ARG NODE_VER=--lts
+ARG PY_VER=system
+
+WORKDIR /home/dev
 SHELL ["/bin/bash", "-c"]
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash \
     && source /home/dev/.nvm/nvm.sh \
     && git clone https://github.com/tmux-plugins/tpm /home/dev/.tmux/plugins/tpm \
     && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/dev/.gitconfig \
-    && nvm install --lts \
+    && nvm install ${NODE_VER} \
     && curl https://pyenv.run | bash
 
+RUN source /home/dev/.bashrc\
+    && CURRENT_PY_VER=$(python3 --version | awk '{print $2}')\
+    && if [[ "$PY_VER" != "" && "$PY_VER" != "system" && "$PY_VER" != "$CURRENT_PY_VER" ]]; then\
+        pyenv install $PY_VER;\
+    fi\
+    && echo "pyenv local $PY_VER" >>/home/dev/.bashrc
+
+USER dev
+WORKDIR /app
 CMD ["tmux"]
