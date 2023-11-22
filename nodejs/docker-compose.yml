@@ -12,6 +12,8 @@ services:
       - ./app:/app:z
       - ./local:/home/node/.local:z
       - ~/.config/nvim:/home/node/.config/nvim:z
+      - ~/.config/tmux:/home/node/.config/tmux:z
+      - ~/.ssh/id_rsa:/home/dev/.ssh/id_rsa:z
       - $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:z
     stdin_open: true
     tty: true
