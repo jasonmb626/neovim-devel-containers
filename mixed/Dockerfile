@@ -17,10 +17,14 @@ RUN useradd dev \
     && chown -R dev:dev /home/dev/.local/share/nvim \
     && mkdir -p /home/dev/.config/tmux \
     && chown -R dev:dev /home/dev/.config/tmux \
+    && mkdir -p /home/dev/.config/lazygit \
+    && touch /home/dev/.config/lazygit/config.yml \
+    && chown -R dev:dev /home/dev/.config/lazygit \
+    && dnf install -y 'dnf-command(copr)' \
+    && dnf copr -y enable atim/lazygit \
     && dnf install -y\
-         fontconfig\
+         lazygit\
          git\
-         openssh\
 	 luarocks\
          ripgrep\
          tmux\
