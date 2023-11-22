@@ -4,6 +4,10 @@ FROM node:21-alpine3.18 as prod
 WORKDIR /app
 COPY app/. .
 
+ENV GDM_LANG=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+
+
 #RUN if [[ -s package.json ]]; then\
 #        npm install;\
 #    fi
