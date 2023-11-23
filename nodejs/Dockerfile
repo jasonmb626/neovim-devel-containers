@@ -4,6 +4,7 @@ FROM node:21-alpine3.18 as prod
 WORKDIR /app
 COPY app/. .
 
+#These (esp the LANG variable) make sure tmux outputs UTF-8. Needed for special chars
 ENV GDM_LANG=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 
