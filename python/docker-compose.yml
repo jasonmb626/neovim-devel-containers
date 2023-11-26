@@ -11,7 +11,7 @@ services:
       - ./local:/home/dev/.local/:z
       - ~/.config/nvim:/home/dev/.config/nvim:z
       - ~/.config/tmux:/home/dev/.config/tmux:z
-      - ~/.ssh/id_rsa:/home/dev/.ssh/id_rsa:z
+      - ~/.ssh:/home/dev/.ssh:z
       - $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:z
     stdin_open: true
     tty: true
