@@ -1,25 +1,16 @@
 ###############################     Base    #################################################
 FROM fedora:39
 
+ARG UID=1000
+ARG GID=1000
+
 ENV GDM_LANG=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 
-RUN useradd dev \
-    && touch /home/dev/{.bashrc,.bash_profile} \
-    && chown dev:dev /home/dev/{.bashrc,.bash_profile} \
-    && mkdir -p /home/dev/.ssh \
-    && chown dev:dev /home/dev/.ssh \
-    && touch /home/dev/.ssh/config \
-    && chown -R dev:dev /home/dev/.ssh \
-    && touch /home/dev/.gitconfig \
-    && chown -R dev:dev /home/dev/.gitconfig \
-    && mkdir -p /home/dev/.local/share/nvim \
-    && chown -R dev:dev /home/dev/.local/share/nvim \
-    && mkdir -p /home/dev/.config/tmux \
-    && chown -R dev:dev /home/dev/.config/tmux \
-    && mkdir -p /home/dev/.config/lazygit \
-    && touch /home/dev/.config/lazygit/config.yml \
-    && chown -R dev:dev /home/dev/.config/lazygit \
+RUN groupadd -g ${GID} dev \
+    && useradd -u ${UID} -g ${GID} dev \
+    && mkdir -p /home/dev/.config \ 
+    && chown dev:dev /home/dev/.config \
     && dnf install -y 'dnf-command(copr)' \
     && dnf copr -y enable atim/lazygit \
     && dnf install -y\
@@ -42,9 +33,7 @@ RUN useradd dev \
          xz xz-devel\
          libffi-devel\
     && pip3 install pynvim \
-    && mkdir -p /etc/sudoers.d \
-    && echo 'dev ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/dev \
-    && echo -e "Host *\n    StrictHostKeyChecking no" > /home/dev/.ssh/config && chown dev:dev /home/dev/.ssh/config && chmod 400 /home/dev/.ssh/config
+    && mkdir -p /etc/sudoers.d && echo 'dev ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/dev
 
 USER dev
 RUN python3 -m venv /home/dev/.venv 

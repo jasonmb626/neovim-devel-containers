@@ -5,24 +5,26 @@ services:
     build:
       context: .
       args:
-        RUN_ENV: DEV
+        #Replace with results of $(id -u) and $(id -g) if necessary
+        UID: 1000
+        GRP: 1000
     container_name: nvim-node
     restart: always
     volumes:
       - ./app:/app:z
-      - ./local:/home/node/.local:z
-      - ~/.config/nvim:/home/node/.config/nvim:z
-      - ~/.config/tmux:/home/node/.config/tmux:z
-      - ~/.ssh/id_rsa:/home/dev/.ssh/id_rsa:z
+      - ./local:/home/dev/.local:z
+      - ~/.config/nvim:/home/dev/.config/nvim:z
+      - ~/.config/tmux:/home/dev/.config/tmux:z
+      - ~/.ssh:/home/dev/.ssh:z
       - $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:z
     stdin_open: true
     tty: true
-    user: 1000:1000
+    user: 1000:1000 #Replace with results of $(id -u) and $(id -g) if necessary
     environment:
       XDG_RUNTIME_DIR: /tmp
       TERM: xterm-256color
       WAYLAND_DISPLAY: $WAYLAND_DISPLAY
       XDG_DATA_DIRS: /tmp/XDG_DATA_DIRS
-      ZDOTDIR: /home/node/.config/zsh
+      ZDOTDIR: /home/dev/.config/zsh
         #    security_opt:  #This this if copying to system clipboard fails.  Needed with moby engine but not Docker proper.
         #      - label:type:container_runtime_t

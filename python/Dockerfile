@@ -1,9 +1,11 @@
 ###############################     prod    #################################################
 FROM python:3.9.18-alpine as prod
 
-WORKDIR /app
+ARG UID=1000
+ARG GID=1000
 
-RUN adduser -D dev -s /bin/bash \
+RUN addgroup -g ${GID} dev \
+    && adduser -D -u ${UID} -G dev -s /bin/bash dev \
     && mkdir -p /home/dev/.config \
     && chown dev:dev /home/dev/.config
 
@@ -26,12 +28,12 @@ fi
 # User specific environment and startup programs
 EOF
 
+WORKDIR /app
+
 CMD ["pyton3", "app.py"]
 
 ###############################     dev    #################################################
 FROM prod as dev
-
-RUN
 
 USER root
 
@@ -48,9 +50,8 @@ RUN apk add git\
          fd\ 
          wl-clipboard\
          sudo\
-         --update && \
-    echo 'dev ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/dev && \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash \
+         --update\
+    && mkdir -p /etc/sudoers.d && echo 'dev ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/dev \
     && pip3 install pynvim
 
 USER dev

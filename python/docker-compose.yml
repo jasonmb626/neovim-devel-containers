@@ -4,6 +4,10 @@ services:
   dev:
     build:
       context: .
+      args:
+        #Replace with results of $(id -u) and $(id -g) if necessary
+        UID: 1000
+        GRP: 1000
     container_name: neovim
     restart: always
     volumes:
@@ -15,7 +19,7 @@ services:
       - $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:z
     stdin_open: true
     tty: true
-    user: 1000:1000
+    user: 1000:1000 #Replace with results of $(id -u) and $(id -g) if necessary
     environment:
       XDG_RUNTIME_DIR: /tmp
       TERM: xterm-256color

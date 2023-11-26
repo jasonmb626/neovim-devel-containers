@@ -1,6 +1,16 @@
 ###############################     Base    #################################################
 FROM node:21-alpine3.18 as prod
 
+ARG UID=1000
+ARG GID=1000
+
+RUN deluser --remove-home node \
+    && addgroup -g ${GID} dev \
+    && adduser -D -u ${UID} -G dev -s /bin/bash dev \
+    && mkdir -p /home/dev/.config \
+    && chown dev:dev /home/dev/.config
+
+USER dev
 WORKDIR /app
 COPY app/. .
 
@@ -17,19 +27,11 @@ CMD ["node", "app.js"]
 #############################   Development   ################################################
 FROM prod as dev
 
-RUN mkdir -p /home/node/.ssh \
-    && chown node:node /home/node/.ssh \
-    && touch /home/node/.ssh/config \
-    && chown -R node:node /home/node/.ssh \
-    && touch /home/node/.gitconfig \
-    && chown -R node:node /home/node/.gitconfig \
-    && mkdir -p /home/node/.local/share/nvim \
-    && chown -R node:node /home/node/.local/share/nvim \
-    && mkdir -p /home/node/.config/tmux \
-    && chown -R node:node /home/node/.config/tmux \
-    && mkdir -p /home/node/.config/lazygit \
-    && touch /home/node/.config/lazygit/config.yml \
-    && chown -R node:node /home/node/.config/lazygit \
+USER root
+
+RUN mkdir -p /home/dev/.config/lazygit \
+    && touch /home/dev/.config/lazygit/config.yml \
+    && chown -R dev:dev /home/dev/.config/lazygit \
     && apk add git\ 
          lua-dev luarocks\
          lazygit\
@@ -42,10 +44,10 @@ RUN mkdir -p /home/node/.ssh \
          fd\ 
          wl-clipboard\
          sudo \
-    && mkdir -p /etc/sudoers.d && echo 'node ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/node \
-    && git clone https://github.com/tmux-plugins/tpm /home/node/.tmux/plugins/tpm \
-    && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/node/.gitconfig \
-    && echo -e "Host *\n    StrictHostKeyChecking no" > /home/node/.ssh/config \
-    && chmod 400 /home/node/.ssh/config
+    && mkdir -p /etc/sudoers.d && echo 'dev ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/dev
+
+USER dev
+RUN git clone https://github.com/tmux-plugins/tpm /home/dev/.tmux/plugins/tpm \
+    && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/dev/.gitconfig \
 
 CMD ["tmux"]
