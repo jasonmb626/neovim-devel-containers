@@ -3,7 +3,10 @@ FROM python:3.9.18-alpine as prod
 
 ARG UID=1000
 ARG GID=1000
-ARG TZ=America/Chicago #`readlink /etc/localtime | awk -Fzoneinfo/ '{print $2}'` to get your s
+
+#To get the timezone on your host machine run the below
+#readlink /etc/localtime | awk -Fzoneinfo/ '{print $2}'
+ARG TZ=America/Chicago
 
 RUN apk add -U alpine-conf tzdata \
     && setup-timezone -z ${TZ} \
@@ -42,16 +45,13 @@ FROM prod as dev
 USER root
 
 RUN apk add git\
-         npm\
-         openssh\
-         lua-dev luarocks\
+         lua-dev luarocks stylua\
          lazygit\
          tmux neovim neovim-doc py3-pynvim\
          procps\
          ripgrep\
          alpine-sdk\
          tree-sitter tree-sitter-cli\
-         fd\ 
          wl-clipboard\
          sudo\
          --update\
@@ -59,7 +59,7 @@ RUN apk add git\
     && pip3 install pynvim
 
 USER app
-RUN git clone https://github.com/tmux-plugins/tpm /home/app/.tmux/plugins/tpm \
+RUN git clone https://github.com/tmux-plugins/tpm /home/app/.config/tmux/plugins/tpm \
     && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/app/.gitconfig 
 
 CMD ["tmux"]
