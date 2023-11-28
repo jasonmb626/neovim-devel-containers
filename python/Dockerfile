@@ -4,20 +4,20 @@ FROM python:3.9.18-alpine as prod
 ARG UID=1000
 ARG GID=1000
 
-RUN addgroup -g ${GID} dev \
-    && adduser -D -u ${UID} -G dev -s /bin/bash dev \
-    && mkdir -p /home/dev/.config \
-    && chown dev:dev /home/dev/.config
+RUN addgroup -g ${GID} app \
+    && adduser -D -u ${UID} -G app -s /bin/bash app \
+    && mkdir -p /home/app/.config \
+    && chown app:app /home/app/.config
 
-USER dev
-RUN python -m venv /home/dev/.venv \
-    && cat <<EOF >> /home/dev/.bashrc 
-source /home/dev/.venv/bin/activate
+USER app
+RUN python -m venv /home/app/.venv \
+    && cat <<EOF >> /home/app/.bashrc 
+source /home/app/.venv/bin/activate
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 EOF
 
-RUN cat <<EOF > /home/dev/.bash_profile 
+RUN cat <<EOF > /home/app/.bash_profile 
 # .bash_profile
 
 # Get the aliases and functions
@@ -51,11 +51,11 @@ RUN apk add git\
          wl-clipboard\
          sudo\
          --update\
-    && mkdir -p /etc/sudoers.d && echo 'dev ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/dev \
+    && mkdir -p /etc/sudoers.d && echo 'app ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/app \
     && pip3 install pynvim
 
-USER dev
-RUN git clone https://github.com/tmux-plugins/tpm /home/dev/.tmux/plugins/tpm \
-    && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/dev/.gitconfig 
+USER app
+RUN git clone https://github.com/tmux-plugins/tpm /home/app/.tmux/plugins/tpm \
+    && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/app/.gitconfig 
 
 CMD ["tmux"]

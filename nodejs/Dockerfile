@@ -5,12 +5,12 @@ ARG UID=1000
 ARG GID=1000
 
 RUN deluser --remove-home node \
-    && addgroup -g ${GID} dev \
-    && adduser -D -u ${UID} -G dev -s /bin/bash dev \
-    && mkdir -p /home/dev/.config \
-    && chown dev:dev /home/dev/.config
+    && addgroup -g ${GID} app \
+    && adduser -D -u ${UID} -G app -s /bin/bash app \
+    && mkdir -p /home/app/.config \
+    && chown app:app /home/app/.config
 
-USER dev
+USER app
 WORKDIR /app
 COPY app/. .
 
@@ -29,10 +29,7 @@ FROM prod as dev
 
 USER root
 
-RUN mkdir -p /home/dev/.config/lazygit \
-    && touch /home/dev/.config/lazygit/config.yml \
-    && chown -R dev:dev /home/dev/.config/lazygit \
-    && apk add git\ 
+RUN apk add git\ 
          lua-dev luarocks\
          lazygit\
          tmux neovim neovim-doc\
@@ -44,10 +41,10 @@ RUN mkdir -p /home/dev/.config/lazygit \
          fd\ 
          wl-clipboard\
          sudo \
-    && mkdir -p /etc/sudoers.d && echo 'dev ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/dev
+    && mkdir -p /etc/sudoers.d && echo 'app ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/app
 
-USER dev
-RUN git clone https://github.com/tmux-plugins/tpm /home/dev/.tmux/plugins/tpm \
-    && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/dev/.gitconfig \
+USER app
+RUN git clone https://github.com/tmux-plugins/tpm /home/app/.tmux/plugins/tpm \
+    && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/app/.gitconfig \
 
 CMD ["tmux"]
