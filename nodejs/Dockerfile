@@ -3,8 +3,12 @@ FROM node:21-alpine3.18 as prod
 
 ARG UID=1000
 ARG GID=1000
+ARG TZ=America/Chicago #`readlink /etc/localtime | awk -Fzoneinfo/ '{print $2}'` to get your s
 
-RUN deluser --remove-home node \
+RUN apk add -U alpine-conf tzdata \
+    && setup-timezone -z ${TZ} \
+    && apk del alpine-conf \
+    && deluser --remove-home node \
     && addgroup -g ${GID} app \
     && adduser -D -u ${UID} -G app -s /bin/bash app \
     && mkdir -p /home/app/.config \

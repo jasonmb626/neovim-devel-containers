@@ -3,8 +3,12 @@ FROM python:3.9.18-alpine as prod
 
 ARG UID=1000
 ARG GID=1000
+ARG TZ=America/Chicago #`readlink /etc/localtime | awk -Fzoneinfo/ '{print $2}'` to get your s
 
-RUN addgroup -g ${GID} app \
+RUN apk add -U alpine-conf tzdata \
+    && setup-timezone -z ${TZ} \
+    && apk del alpine-conf \
+    && addgroup -g ${GID} app \
     && adduser -D -u ${UID} -G app -s /bin/bash app \
     && mkdir -p /home/app/.config \
     && chown app:app /home/app/.config
