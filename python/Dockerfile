@@ -46,7 +46,8 @@ USER root
 
 RUN apk add git\
          lua-dev luarocks stylua\
-         lazygit\
+         #for working with git
+         lazygit openssh\
          tmux neovim neovim-doc py3-pynvim\
          #pyright depends on npm -- yuck
          npm\ 
