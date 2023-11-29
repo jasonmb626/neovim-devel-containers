@@ -38,7 +38,7 @@ USER root
 
 RUN apk add git\ 
          lua-dev luarocks stylua\
-         lazygit\
+         lazygit openssh\
          tmux neovim neovim-doc\
          procps\
          tmux\
