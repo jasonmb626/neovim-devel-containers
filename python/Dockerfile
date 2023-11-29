@@ -20,11 +20,14 @@ USER app
 RUN python -m venv /home/app/.venv \
     && cat <<EOF >> /home/app/.bashrc 
 source /home/app/.venv/bin/activate
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 EOF
 
-RUN cat <<EOF > /home/app/.bash_profile 
+WORKDIR /home/app
+
+COPY requirements.txt requirements.txt
+
+RUN pip3 install -r requirements.txt && rm requirements.txt\
+    && cat <<EOF > /home/app/.bash_profile 
 # .bash_profile
 
 # Get the aliases and functions
@@ -49,8 +52,6 @@ RUN apk add git\
          #for working with git
          lazygit openssh\
          tmux neovim neovim-doc py3-pynvim\
-         #pyright depends on npm -- yuck
-         npm\ 
          procps\
          ripgrep\
          alpine-sdk\
@@ -58,11 +59,17 @@ RUN apk add git\
          wl-clipboard\
          sudo\
          --update\
-    && mkdir -p /etc/sudoers.d && echo 'app ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/app \
-    && pip3 install pynvim
+    && mkdir -p /etc/sudoers.d && echo 'app ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/app
+
+WORKDIR /home/app
 
 USER app
-RUN git clone https://github.com/tmux-plugins/tpm /home/app/.config/tmux/plugins/tpm \
+COPY requirements-dev.txt requirements-dev.txt
+RUN source /home/app/.venv/bin/activate\
+    && pip3 install -r requirements-dev.txt && rm requirements-dev.txt\
+    && pyright #run it once so it installs prebuilt node into virtual environment too\
+    && git clone https://github.com/tmux-plugins/tpm /home/app/.config/tmux/plugins/tpm \
     && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/app/.gitconfig 
 
+WORKDIR /app
 CMD ["tmux"]
