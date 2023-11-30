@@ -21,8 +21,8 @@ RUN groupadd -g ${GID} dev \
          tmux\
          neovim \
          python3-pip \
-         patch \
-         gcc\
+         gcc gcc-c++ patch\
+         procps\
          zlib-devel\
          bzip2\
          bzip2-devel\
