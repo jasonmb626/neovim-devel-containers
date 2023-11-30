@@ -65,9 +65,10 @@ WORKDIR /home/app
 
 USER app
 COPY requirements-dev.txt requirements-dev.txt
+#in the below run pyright once so it installs prebuilt node into virtual environment too
 RUN source /home/app/.venv/bin/activate\
     && pip3 install -r requirements-dev.txt && rm requirements-dev.txt\
-    && pyright #run it once so it installs prebuilt node into virtual environment too\
+    && pyright\
     && git clone https://github.com/tmux-plugins/tpm /home/app/.config/tmux/plugins/tpm \
     && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/app/.gitconfig 
 
