@@ -3,3 +3,4 @@ package-lock.json
 python/app/package.json
 local
 app
+config
