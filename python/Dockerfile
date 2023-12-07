@@ -49,8 +49,8 @@ USER root
 
 RUN apk add git\
          lua-dev luarocks stylua\
-         #for working with git
-         lazygit openssh\
+         lazygit git-flow openssh\
+         mercurial\
          tmux neovim neovim-doc py3-pynvim\
          procps\
          ripgrep\
@@ -58,6 +58,7 @@ RUN apk add git\
          tree-sitter tree-sitter-cli\
          wl-clipboard\
          sudo\
+         unzip gzip fd wget\
          --update\
     && mkdir -p /etc/sudoers.d && echo 'app ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/app
 
@@ -67,10 +68,11 @@ USER app
 COPY requirements-dev.txt requirements-dev.txt
 #in the below run pyright once so it installs prebuilt node into virtual environment too
 RUN source /home/app/.venv/bin/activate\
+    && pip3 install --upgrade pip \
     && pip3 install -r requirements-dev.txt && rm requirements-dev.txt\
     && pyright\
     && git clone https://github.com/tmux-plugins/tpm /home/app/.config/tmux/plugins/tpm \
-    && echo -e "[user]\n	email = jasonmb626@gmail.com\n	name = Jason Brunelle\n[init]\n	defaultBranch = main\n[pull]	rebase = false" >/home/app/.gitconfig 
+    && git clone https://github.com/jasonmb626/epicvim.git /home/app/.config/nvim
 
 WORKDIR /app
 CMD ["tmux"]

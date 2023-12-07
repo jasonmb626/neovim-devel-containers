@@ -12,10 +12,11 @@ services:
     restart: always
     volumes:
       - ./app:/app:z
-      - ./local:/home/app/.local/:z
+      - dotlocal:/home/app/.local
       - ~/.config/nvim:/home/app/.config/nvim:z
       - ~/.config/tmux:/home/app/.config/tmux:z
       - ~/.ssh:/home/app/.ssh:z
+      - ~/.gitconfig:/home/app/.gitconfig:z
       - $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:z
     stdin_open: true
     tty: true
@@ -28,3 +29,5 @@ services:
       ZDOTDIR: /home/app/.config/zsh
         #    security_opt:  #This this if copying to system clipboard fails.  Needed with moby engine but not Docker proper.
         #      - label:type:container_runtime_t
+volumes:
+  dotlocal:
