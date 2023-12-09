@@ -15,11 +15,7 @@ RUN groupadd -g ${GID} app \
     && mkdir -p /home/app/.config \ 
     && chown app:app /home/app/.config \
     && chmod 777 /tmp \
-    && dnf install -y git
-
-USER app
-COPY requirements.txt /tmp
-RUN python3 -m venv /home/app/.venv \
+    && dnf install -y dnf5 \
     && cat <<EOF > /home/app/.bash_profile 
 # .bash_profile
 
@@ -30,13 +26,27 @@ fi
 
 # User specific environment and startup programs
 EOF
-RUN cat <<EOF >/home/app/.bashrc 
+
+#Install python build dependencies if not using system python
+RUN if [[ "$PY_VER" != "system" ]]; then\
+    dnf install -y \
+      make gcc patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel libuuid-devel gdbm-libs libnsl2;\
+fi
+
+RUN dnf install -y openssl1.1-devel --allowerasing
+
+RUN dnf install -y git \
+    && cat <<EOF >/home/app/.bashrc 
 export PYENV_ROOT="\$HOME/.pyenv"
 [[ -d \$PYENV_ROOT/bin ]] && export PATH="\$PYENV_ROOT/bin:\$PATH"
 eval "\$(pyenv init -)"
 eval "\$(pyenv virtualenv-init -)"
 source /home/app/.venv/bin/activate
 EOF
+
+USER app
+COPY requirements.txt /tmp
+RUN python3 -m venv /home/app/.venv
 
 WORKDIR /home/app
 SHELL ["/bin/bash", "-c"]
@@ -49,6 +59,8 @@ RUN source /home/app/.venv/bin/activate && pip3 install -r /tmp/requirements.txt
 RUN source /home/app/.bashrc\
     && CURRENT_PY_VER=$(python3 --version | awk '{print $2}')\
     && if [[ "$PY_VER" != "" && "$PY_VER" != "system" && "$PY_VER" != "$CURRENT_PY_VER" ]]; then\
+        CPPFLAGS=-I/usr/include/openssl \
+        LDFLAGS=-L/usr/lib64 \
         pyenv install $PY_VER;\
     fi\
     && echo "pyenv local $PY_VER" >>/home/app/.bashrc
@@ -60,9 +72,9 @@ CMD ["python3", "app.py"]
 FROM prod as dev
 
 USER root
-RUN dnf install -y 'dnf-command(copr)' \
-    && dnf copr -y enable atim/lazygit \
-    && dnf install -y\
+RUN dnf5 install -y 'dnf-command(copr)' \
+    && dnf5 copr -y enable atim/lazygit \
+    && dnf5 install -y\
          lazygit\
          openssh wget\
 	 luarocks\
@@ -77,6 +89,7 @@ RUN dnf install -y 'dnf-command(copr)' \
     && mkdir -p /etc/sudoers.d && echo 'app ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers.d/app
 COPY requirements-dev.txt /tmp
 USER app
-RUN source /home/app/.venv/bin/activate && pip3 install -r /tmp/requirements-dev.txt && rm /tmp/requirements-dev.txt
+RUN source /home/app/.venv/bin/activate && pip3 install -r /tmp/requirements-dev.txt && rm /tmp/requirements-dev.txt \
+    && pip3 install pyright pynvim && pyright
 
 CMD ["tmux]

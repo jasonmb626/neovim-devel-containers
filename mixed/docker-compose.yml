@@ -4,6 +4,8 @@ services:
   dev:
     build:
       context: .
+      args:
+        - PY_VER=3.4.0
     container_name: neovim
     restart: always
     volumes:
@@ -13,6 +15,7 @@ services:
       - ~/.config/tmux:/home/app/.config/tmux:z
       - ~/.gitconfig:/home/app/.gitconfig:z
       - ~/.ssh:/home/app/.ssh:z
+      - /etc/localtime:/etc/localtime:ro
       - $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:z
     stdin_open: true
     tty: true
