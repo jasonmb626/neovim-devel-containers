@@ -15,7 +15,9 @@ services:
       - ./local:/home/app/.local:z
       - ~/.config/nvim:/home/app/.config/nvim:z
       - ~/.config/tmux:/home/app/.config/tmux:z
+      - ~/.gitconfig:/home/app/.gitconfig:ro
       - ~/.ssh:/home/app/.ssh:z
+      - /etc/localtime:/etc/localtime:ro
       - $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY:z
     stdin_open: true
     tty: true
